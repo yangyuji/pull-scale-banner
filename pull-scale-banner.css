@@ -1,0 +1,21 @@
+/**
+ * author: "oujizeng",
+ * license: "MIT",
+ * github: "https://github.com/yangyuji/pull-scale-banner",
+ * name: "pull-scale-banner.js",
+ * version: "1.0.0"
+ */
+
+.pull-message {
+    position: relative;
+    display: inline-block;
+    height: 20px;
+    line-height: 20px;
+    margin: 11px auto;
+    padding: 0 5px;
+    background: rgba(0,0,0,0.20);
+    text-align: center;
+    font-size: 12px;
+    color: #fff;
+    opacity: 0;
+}
