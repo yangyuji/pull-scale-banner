@@ -3,7 +3,7 @@
  * license: "MIT",
  * github: "https://github.com/yangyuji/pull-scale-banner",
  * name: "pull-scale-banner.js",
- * version: "1.0.1"
+ * version: "1.0.2"
  */
 
 (function (root, factory) {
@@ -57,7 +57,7 @@
         this.translateY = 0;                             // 滑动值，Y轴
         this.scale = 0;
         this.changeOneTimeFlag = 0;                      // 修改dom只执行1次标志位
-        this.joinRefreshFlag = 0;                        // 进入下拉刷新状态标志位
+        this.joinRefreshFlag = null;                     // 进入下拉刷新状态标志位
         this.refreshFlag = 0;                            // 下拉刷新执行是控制页面假死标志位
 
         this.wrapper = util._getEle(opt.drager);          // 拖动区域
@@ -83,7 +83,7 @@
     }
 
     pullScaleBanner.prototype = {
-        version: '1.0.1',
+        version: '1.0.2',
         destroy: function () {
             this._unbindEvents();
             this.off('before-pull');
@@ -122,28 +122,34 @@
 
 
             // 当scrolltop是0且往下滚动
-            if (document.documentElement.scrollTop + document.body.scrollTop === 0
-                && this.translateY > 0) {
+            if (document.documentElement.scrollTop + document.body.scrollTop === 0) {
+                if (this.translateY > 0) {
 
-                e.cancelable && e.preventDefault(); // 必须
+                    e.cancelable && e.preventDefault(); // 必须
 
-                if (!this.changeOneTimeFlag) {
-                    this.emit('before-pull');
-                    this.changeOneTimeFlag = 1;
-                }
-                this.joinRefreshFlag = 1;
+                    if (!this.changeOneTimeFlag) {
+                        this.emit('before-pull');
+                        this.changeOneTimeFlag = 1;
+                    }
 
-                if (Math.abs(this.translateY) > this.moveCount) {
-                    this.text.textContent = '松手跳转到页面';
+                    this.joinRefreshFlag = 1;
+
+                    if (Math.abs(this.translateY) > this.moveCount) {
+                        this.text.textContent = '松手跳转到页面';
+                    } else {
+                        this.text.textContent = this.bannerText;
+                    }
+                    this.text.style.opacity = Math.abs(this.translateY) / this.moveCount;
+
+                    util._translate(this.wrapper, 'Transform', 'translate3d(0,' + this.translateY + 'px,0)');
+                    util._translate(this.banner, 'Transform', 'scale(' + this.scale + ', ' + this.scale + ')');
+
+                    this.emit('pull-down');
                 } else {
-                    this.text.textContent = this.bannerText;
+                    if (this.joinRefreshFlag === null) this.joinRefreshFlag = 0;
                 }
-                this.text.style.opacity = Math.abs(this.translateY) / this.moveCount;
-
-                util._translate(this.wrapper, 'Transform', 'translate3d(0,' + this.translateY + 'px,0)');
-                util._translate(this.banner, 'Transform', 'scale(' + this.scale + ', ' + this.scale + ')');
-
-                this.emit('pull-down');
+            } else {
+                if (this.joinRefreshFlag === null) this.joinRefreshFlag = 0;
             }
         },
         _end: function (e) {
@@ -175,13 +181,14 @@
             } else {
                 // 未超过刷新临界值
                 if (this.joinRefreshFlag) {
+                    this.refreshFlag = 1;
                     this.text.textContent = '跳转取消';
                     this._animateEnd(0);
                 }
             }
             // 恢复初始化状态
             this.changeOneTimeFlag = 0;
-            this.joinRefreshFlag = 0;
+            this.joinRefreshFlag = null;
             this.dragStart = 0;
             this.translateY = 0;
             this.scale = 0;
@@ -189,7 +196,7 @@
         _cancel: function () {
             // 恢复初始化状态
             this.changeOneTimeFlag = 0;
-            this.joinRefreshFlag = 0;
+            this.joinRefreshFlag = null;
             this.dragStart = 0;
             this.translateY = 0;
             this.scale = 0;
