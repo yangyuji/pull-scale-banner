@@ -3,7 +3,7 @@
  * license: "MIT",
  * github: "https://github.com/yangyuji/pull-scale-banner",
  * name: "pull-scale-banner.js",
- * version: "1.0.0"
+ * version: "1.0.1"
  */
 
 (function (root, factory) {
@@ -20,7 +20,7 @@
     'use strict'
 
     var util = {
-        getEle: function (str, scope) {
+        _getEle: function (str, scope) {
             var doc = scope || document;
             return doc.querySelector(str);
         },
@@ -60,9 +60,9 @@
         this.joinRefreshFlag = 0;                        // 进入下拉刷新状态标志位
         this.refreshFlag = 0;                            // 下拉刷新执行是控制页面假死标志位
 
-        this.wrapper = util.getEle(opt.drager);          // 拖动区域
-        this.banner = util.getEle(opt.scaler);
-        this.text = util.getEle('.pull-message');
+        this.wrapper = util._getEle(opt.drager);          // 拖动区域
+        this.banner = util._getEle(opt.scaler);
+        this.text = util._getEle('.pull-message');
         this.bannerHeight = this.banner.offsetHeight;
         this.bannerText = this.text.textContent;
 
@@ -83,6 +83,7 @@
     }
 
     pullScaleBanner.prototype = {
+        version: '1.0.1',
         destroy: function () {
             this._unbindEvents();
             this.off('before-pull');
@@ -124,7 +125,7 @@
             if (document.documentElement.scrollTop + document.body.scrollTop === 0
                 && this.translateY > 0) {
 
-                e.preventDefault(); // 必须
+                e.cancelable && e.preventDefault(); // 必须
 
                 if (!this.changeOneTimeFlag) {
                     this.emit('before-pull');
