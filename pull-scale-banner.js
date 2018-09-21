@@ -162,7 +162,7 @@
             }
 
             // 超过刷新临界值
-            if (this.translateY < 0 && Math.abs(this.translateY) > this.moveCount && this.joinRefreshFlag) {
+            if (this.translateY > this.moveCount && this.joinRefreshFlag) {
 
                 this.text.style.opacity = 1;
 
